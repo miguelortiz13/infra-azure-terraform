@@ -9,3 +9,20 @@ variable "resource_group_name" {
   type        = string
   default     = "rg-devops-sre-tfstate"
 }
+
+variable "container_name" {
+  description = "Nombre del contenedor de blobs para almacenar los archivos tfstate"
+  type        = string
+  default     = "tfstate"
+}
+
+variable "tags" {
+  description = "Etiquetas comunes para los recursos de bootstrap"
+  type        = map(string)
+  default = {
+    project     = "devops-sre-lab"
+    managed_by  = "terraform"
+    component   = "bootstrap"
+    environment = "shared"
+  }
+}
