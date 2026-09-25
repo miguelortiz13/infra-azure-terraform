@@ -55,3 +55,23 @@ module "keyvault" {
   secrets_officer_principal_ids = [data.azurerm_client_config.current.object_id]
   tags                          = var.tags
 }
+
+module "aks" {
+  source              = "../../modules/aks"
+  cluster_name        = "aks-${var.project_name}-${var.environment}-${var.location}"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  dns_prefix          = "aks-${var.project_name}-${var.environment}"
+  sku_tier            = "Standard"
+  vnet_subnet_id      = module.network.subnet_ids["snet-aks"]
+  vm_size             = "Standard_D2as_v6"
+  enable_auto_scaling = true
+  min_count           = 2
+  max_count           = 5
+  node_count          = 2
+  os_disk_size_gb     = 64
+  acr_id              = module.acr.acr_id
+  tags                = var.tags
+
+  depends_on = [module.network]
+}

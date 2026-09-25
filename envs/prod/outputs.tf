@@ -57,3 +57,29 @@ output "key_vault_uri" {
   description = "URI del Azure Key Vault"
   value       = module.keyvault.key_vault_uri
 }
+
+output "aks_cluster_id" {
+  description = "ID del cluster AKS"
+  value       = module.aks.cluster_id
+}
+
+output "aks_cluster_name" {
+  description = "Nombre del cluster AKS"
+  value       = module.aks.cluster_name
+}
+
+output "aks_oidc_issuer_url" {
+  description = "URL del emisor OIDC de AKS para Workload Identity"
+  value       = module.aks.oidc_issuer_url
+}
+
+output "aks_kubelet_identity_object_id" {
+  description = "Object ID de la identidad administrada Kubelet de AKS"
+  value       = module.aks.kubelet_identity_object_id
+}
+
+output "aks_kube_config_raw" {
+  description = "Kubeconfig raw para conexión al cluster AKS (marcado sensitive para proteger credenciales)"
+  value       = module.aks.kube_config_raw
+  sensitive   = true
+}
