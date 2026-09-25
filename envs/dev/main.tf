@@ -1,3 +1,11 @@
+data "azurerm_client_config" "current" {}
+
+resource "random_string" "suffix" {
+  length  = 5
+  special = false
+  upper   = false
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = "rg-${var.project_name}-${var.environment}-${var.location}"
   location = var.location
@@ -24,4 +32,35 @@ module "network" {
   }
 
   tags = var.tags
+}
+
+module "acr" {
+  source              = "../../modules/acr"
+  name                = "acr${replace(var.project_name, "-", "")}${var.environment}${random_string.suffix.result}"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = "Basic"
+  admin_enabled       = false
+  tags                = var.tags
+}
+
+module "keyvault" {
+  source                        = "../../modules/keyvault"
+  name                          = "kv-${var.project_name}-${var.environment}-${random_string.suffix.result}"
+  resource_group_name           = azurerm_resource_group.rg.name
+  location                      = azurerm_resource_group.rg.location
+  sku_name                      = "standard"
+  tenant_id                     = data.azurerm_client_config.current.tenant_id
+  purge_protection_enabled      = false
+  secrets_officer_principal_ids = [data.azurerm_client_config.current.object_id]
+  tags                          = var.tags
+}
+
+# Secreto de prueba para validar autorizacion y acceso RBAC
+resource "azurerm_key_vault_secret" "test" {
+  name         = "db-password-sample"
+  value        = "DevOpsSREPasswd2026!"
+  key_vault_id = module.keyvault.key_vault_id
+
+  depends_on = [module.keyvault]
 }

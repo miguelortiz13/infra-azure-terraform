@@ -27,3 +27,33 @@ output "nsg_ids" {
   description = "Mapa de IDs de los NSGs asociados"
   value       = module.network.nsg_ids
 }
+
+output "acr_id" {
+  description = "ID del Azure Container Registry"
+  value       = module.acr.acr_id
+}
+
+output "acr_name" {
+  description = "Nombre del Azure Container Registry"
+  value       = module.acr.acr_name
+}
+
+output "acr_login_server" {
+  description = "URL del login server del ACR"
+  value       = module.acr.acr_login_server
+}
+
+output "key_vault_id" {
+  description = "ID del Azure Key Vault"
+  value       = module.keyvault.key_vault_id
+}
+
+output "key_vault_name" {
+  description = "Nombre del Azure Key Vault"
+  value       = module.keyvault.key_vault_name
+}
+
+output "key_vault_uri" {
+  description = "URI del Azure Key Vault"
+  value       = module.keyvault.key_vault_uri
+}
