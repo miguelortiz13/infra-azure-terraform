@@ -1,0 +1,54 @@
+name: OIDC Authentication Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/oidc-test.yml'
+      - 'bootstrap/**'
+      - 'docs/oidc.md'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/oidc-test.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  verify-oidc:
+    name: Verify Azure OIDC Login
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Azure Login via OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify Azure CLI Context
+        run: |
+          echo "=== Account Context ==="
+          az account show --output json
+
+          echo "=== Active Subscription ID ==="
+          CURRENT_SUB=$(az account show --query id -o tsv)
+          EXPECTED_SUB="${{ vars.AZURE_SUBSCRIPTION_ID }}"
+          if [ "$CURRENT_SUB" != "$EXPECTED_SUB" ]; then
+            echo "ERROR: Connected subscription ($CURRENT_SUB) does not match expected ($EXPECTED_SUB)"
+            exit 1
+          fi
+          echo "Successfully authenticated to subscription $CURRENT_SUB via Workload Identity Federation (OIDC)!"
+
+      - name: Verify Azure RBAC Permissions
+        run: |
+          echo "=== Listing Resource Groups ==="
+          az group list --query "[].{Name:name, Location:location, State:properties.provisioningState}" -o table

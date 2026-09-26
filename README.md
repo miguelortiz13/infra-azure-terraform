@@ -116,7 +116,17 @@ make tools
 
 ---
 
-## 5. Control de Costos y Buenas Prácticas FinOps
+## 5. Documentación de Arquitectura y Guías
+
+* [Autenticación OIDC con GitHub Actions](docs/oidc.md) · Federación de identidades sin secretos estáticos (Workload Identity Federation).
+* [Backend Remoto y Bloqueo de Estado](docs/backend-remote-locking.md) · Azure Blob Storage con state locking para Terraform.
+* [Módulo de Redes](docs/network.md) · Topología de VNet, subnets y NSG para AKS.
+* [Módulo AKS y Workload Identity](docs/aks.md) · Cluster AKS con Azure CNI Overlay, Cilium eBPF y autoscaler.
+* [Ciclo de Vida del Entorno Dev](docs/dev-environment-lifecycle.md) · Pruebas de extremo a extremo, despliegue de Online Boutique y drift detection.
+
+---
+
+## 6. Control de Costos y Buenas Prácticas FinOps
 
 * **Destrucción al terminar la sesión:** La infraestructura de laboratorio en la nube no debe quedar encendida permanentemente; ejecutar `make destroy ENV=dev` al finalizar cada sesión de trabajo.
 * **Presupuesto activo:** La suscripción cuenta con un Azure Budget mensual de $20 USD con notificaciones automáticas al 50%, 80% y 100%.

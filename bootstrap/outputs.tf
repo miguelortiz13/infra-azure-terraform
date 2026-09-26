@@ -42,3 +42,23 @@ terraform {
 }
 EOT
 }
+
+output "github_actions_client_id" {
+  description = "Client ID de la aplicación de Microsoft Entra ID para GitHub Actions (AZURE_CLIENT_ID)"
+  value       = azuread_application.github_actions.client_id
+}
+
+output "github_actions_service_principal_id" {
+  description = "Object ID del Service Principal asociado a GitHub Actions"
+  value       = azuread_service_principal.github_actions.object_id
+}
+
+output "github_actions_tenant_id" {
+  description = "Tenant ID de Microsoft Entra ID (AZURE_TENANT_ID)"
+  value       = data.azurerm_client_config.current.tenant_id
+}
+
+output "github_actions_subscription_id" {
+  description = "ID de la suscripción de Azure (AZURE_SUBSCRIPTION_ID)"
+  value       = data.azurerm_client_config.current.subscription_id
+}
