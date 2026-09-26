@@ -118,6 +118,7 @@ make tools
 
 ## 5. Documentación de Arquitectura y Guías
 
+* [FinOps Shift-Left con Infracost](docs/infracost.md) · Estimación de costos en cada PR, detección de diff de costos y presupuestos.
 * [Pipeline de CI/CD: Validación, Seguridad y Plan](docs/ci-cd.md) · Workflows de GitHub Actions, escaneo Checkov/TFLint, plan interactivo y compuerta manual.
 * [Autenticación OIDC con GitHub Actions](docs/oidc.md) · Federación de identidades sin secretos estáticos (Workload Identity Federation).
 * [Backend Remoto y Bloqueo de Estado](docs/backend-remote-locking.md) · Azure Blob Storage con state locking para Terraform.
