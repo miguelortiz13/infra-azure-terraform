@@ -39,4 +39,14 @@ else
   echo "✔ pre-commit instalado"
 fi
 
+if command -v infracost >/dev/null 2>&1; then
+  echo "infracost ya instalado: $(infracost --version | head -n1)"
+else
+  echo "Descargando e instalando infracost..."
+  curl -fsSL "https://github.com/infracost/infracost/releases/latest/download/infracost-linux-amd64.tar.gz" | tar -xz -C "$INSTALL_DIR"
+  chmod +x "$INSTALL_DIR/infracost-linux-amd64"
+  ln -sf "$INSTALL_DIR/infracost-linux-amd64" "$INSTALL_DIR/infracost"
+  echo "✔ infracost instalado en $INSTALL_DIR/infracost"
+fi
+
 echo "Todas las herramientas de calidad están instaladas."
