@@ -62,34 +62,34 @@ resource "azuread_service_principal" "github_actions" {
   owners    = [data.azurerm_client_config.current.object_id]
 }
 
-# Credencial federada 1: Pull Requests
+# Credencial federada 1: Pull Requests (formato inmutable)
 resource "azuread_application_federated_identity_credential" "pr" {
   application_id = azuread_application.github_actions.id
   display_name   = "github-actions-pull-request"
-  description    = "OIDC federation for pull requests in ${var.github_repository}"
+  description    = "OIDC federation for pull requests (immutable format)"
   audiences      = ["api://AzureADTokenExchange"]
   issuer         = "https://token.actions.githubusercontent.com"
-  subject        = "repo:${var.github_repository}:pull_request"
+  subject        = "repo:${var.github_repository_immutable}:pull_request"
 }
 
-# Credencial federada 2: Rama main
+# Credencial federada 2: Rama main (formato inmutable)
 resource "azuread_application_federated_identity_credential" "main" {
   application_id = azuread_application.github_actions.id
   display_name   = "github-actions-branch-main"
-  description    = "OIDC federation for main branch workflow runs in ${var.github_repository}"
+  description    = "OIDC federation for main branch workflow runs (immutable format)"
   audiences      = ["api://AzureADTokenExchange"]
   issuer         = "https://token.actions.githubusercontent.com"
-  subject        = "repo:${var.github_repository}:ref:refs/heads/main"
+  subject        = "repo:${var.github_repository_immutable}:ref:refs/heads/main"
 }
 
-# Credencial federada 3: Environment dev
+# Credencial federada 3: Environment dev (formato inmutable)
 resource "azuread_application_federated_identity_credential" "dev" {
   application_id = azuread_application.github_actions.id
   display_name   = "github-actions-env-dev"
-  description    = "OIDC federation for dev environment in ${var.github_repository}"
+  description    = "OIDC federation for dev environment (immutable format)"
   audiences      = ["api://AzureADTokenExchange"]
   issuer         = "https://token.actions.githubusercontent.com"
-  subject        = "repo:${var.github_repository}:environment:dev"
+  subject        = "repo:${var.github_repository_immutable}:environment:dev"
 }
 
 # Rol 1: Contributor en la suscripción para aprovisionar y gestionar recursos

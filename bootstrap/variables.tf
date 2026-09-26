@@ -22,6 +22,12 @@ variable "github_repository" {
   default     = "miguelortiz13/infra-azure-terraform"
 }
 
+variable "github_repository_immutable" {
+  description = "Identificador inmutable de GitHub en formato 'owner@id/repo@id' según el nuevo estándar OIDC de GitHub"
+  type        = string
+  default     = "miguelortiz13@89714460/infra-azure-terraform@1384705422"
+}
+
 variable "github_actions_app_name" {
   description = "Nombre de la aplicación de Microsoft Entra ID para GitHub Actions"
   type        = string

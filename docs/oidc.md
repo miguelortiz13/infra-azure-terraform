@@ -67,16 +67,19 @@ resource "azuread_service_principal" "github_actions" {
 
 ### 3.2. Credenciales Federadas (Federated Identity Credentials)
 
-Se definieron tres credenciales federadas para restringir el acceso a contextos autorizados del repositorio:
+Se definieron tres credenciales federadas para restringir el acceso a contextos autorizados del repositorio.
+
+> [!NOTE]
+> GitHub Actions introdujo el formato de sujeto inmutable (*Immutable Subject Format*) para repositorios: `repo:<owner>@<owner_id>/<repo>@<repo_id>:<context>`. Esto asegura que los identificadores de federación permanezcan inmutables ante cambios de nombre de usuario o transferencia de repositorios. Para este proyecto, el prefijo inmutable es `repo:miguelortiz13@89714460/infra-azure-terraform@1384705422`.
 
 * **Emisor (*Issuer*):** `https://token.actions.githubusercontent.com`
 * **Audiencia (*Audiences*):** `["api://AzureADTokenExchange"]`
 
 | Nombre Credencial | Subject Claim (`sub`) | Propósito |
 |---|---|---|
-| `github-actions-branch-main` | `repo:miguelortiz13/infra-azure-terraform:ref:refs/heads/main` | Ejecuciones originadas en commits a la rama `main` (despliegue continuo). |
-| `github-actions-pull-request` | `repo:miguelortiz13/infra-azure-terraform:pull_request` | Validación de PRs (ejecución de `terraform plan` y linters). |
-| `github-actions-env-dev` | `repo:miguelortiz13/infra-azure-terraform:environment:dev` | Trabajos dirigidos al entorno `dev` de GitHub Actions. |
+| `github-actions-branch-main` | `repo:miguelortiz13@89714460/infra-azure-terraform@1384705422:ref:refs/heads/main` | Ejecuciones originadas en commits a la rama `main` (despliegue continuo). |
+| `github-actions-pull-request` | `repo:miguelortiz13@89714460/infra-azure-terraform@1384705422:pull_request` | Validación de PRs (ejecución de `terraform plan` y linters). |
+| `github-actions-env-dev` | `repo:miguelortiz13@89714460/infra-azure-terraform@1384705422:environment:dev` | Trabajos dirigidos al entorno `dev` de GitHub Actions. |
 
 ### 3.3. Asignación de Roles RBAC (Mínimo Privilegio)
 
