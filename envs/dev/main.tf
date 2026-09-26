@@ -86,7 +86,7 @@ module "aks" {
   dns_prefix          = "aks-${var.project_name}-${var.environment}"
   sku_tier            = "Free"
   vnet_subnet_id      = module.network.subnet_ids["snet-aks"]
-  vm_size             = "Standard_D4as_v6"
+  vm_size             = "Standard_D2as_v6"
   enable_auto_scaling = true
   min_count           = 1
   max_count           = 3
