@@ -23,6 +23,6 @@ variable "tags" {
     project     = "devops-sre-lab"
     environment = "dev"
     managed_by  = "terraform"
-    ci_pipeline = "github-actions"
+    ci_pipeline = "github-actions-v2"
   }
 }
