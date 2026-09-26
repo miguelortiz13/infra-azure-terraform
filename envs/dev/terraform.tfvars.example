@@ -1,2 +1,12 @@
-environment = "dev"
-location    = "eastus2"
+# Valores de ejemplo para el entorno de desarrollo (sin secretos)
+# Copia este archivo a terraform.tfvars si deseas sobreescribir los valores por defecto.
+
+project_name = "devops-sre"
+environment  = "dev"
+location     = "eastus2"
+
+tags = {
+  project     = "devops-sre-lab"
+  environment = "dev"
+  managed_by  = "terraform"
+}

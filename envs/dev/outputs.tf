@@ -88,3 +88,13 @@ output "aks_kube_config_raw" {
   value       = module.aks.kube_config_raw
   sensitive   = true
 }
+
+output "monitoring_workspace_id" {
+  description = "ID del Log Analytics Workspace del entorno dev"
+  value       = module.monitoring.workspace_id
+}
+
+output "monitoring_workspace_name" {
+  description = "Nombre del Log Analytics Workspace del entorno dev"
+  value       = module.monitoring.workspace_name
+}

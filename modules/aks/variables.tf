@@ -55,10 +55,11 @@ variable "vm_size" {
 
 
 variable "os_disk_size_gb" {
-  description = "Tamaño del disco de sistema operativo en GB para los nodos"
+  description = "Tamaño del disco de sistema operativo en GB para los nodos (64 GB recomendado para evitar desalojo por almacenamiento efímero)"
   type        = number
-  default     = 30
+  default     = 64
 }
+
 
 variable "os_disk_type" {
   description = "Tipo de disco de sistema operativo (Managed o Ephemeral)"
@@ -144,8 +145,21 @@ variable "dns_service_ip" {
   default     = "10.0.0.10"
 }
 
+variable "attach_acr" {
+  description = "Indica si se debe asignar el rol AcrPull a la identidad del Kubelet sobre el ACR indicado en acr_id"
+  type        = bool
+  default     = true
+}
+
 variable "acr_id" {
   description = "ID del Azure Container Registry sobre el cual se asignará el rol AcrPull a la kubelet identity"
+  type        = string
+  default     = null
+}
+
+
+variable "log_analytics_workspace_id" {
+  description = "ID del Log Analytics Workspace para Container Insights y monitoreo centralizado (opcional)"
   type        = string
   default     = null
 }

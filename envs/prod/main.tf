@@ -56,22 +56,33 @@ module "keyvault" {
   tags                          = var.tags
 }
 
-module "aks" {
-  source              = "../../modules/aks"
-  cluster_name        = "aks-${var.project_name}-${var.environment}-${var.location}"
+module "monitoring" {
+  source              = "../../modules/monitoring"
+  workspace_name      = "log-${var.project_name}-${var.environment}-${var.location}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  dns_prefix          = "aks-${var.project_name}-${var.environment}"
-  sku_tier            = "Standard"
-  vnet_subnet_id      = module.network.subnet_ids["snet-aks"]
-  vm_size             = "Standard_D2as_v6"
-  enable_auto_scaling = true
-  min_count           = 2
-  max_count           = 5
-  node_count          = 2
-  os_disk_size_gb     = 64
-  acr_id              = module.acr.acr_id
+  retention_in_days   = 60
+  daily_quota_gb      = 2.0
   tags                = var.tags
+}
 
-  depends_on = [module.network]
+module "aks" {
+  source                     = "../../modules/aks"
+  cluster_name               = "aks-${var.project_name}-${var.environment}-${var.location}"
+  resource_group_name        = azurerm_resource_group.rg.name
+  location                   = azurerm_resource_group.rg.location
+  dns_prefix                 = "aks-${var.project_name}-${var.environment}"
+  sku_tier                   = "Standard"
+  vnet_subnet_id             = module.network.subnet_ids["snet-aks"]
+  vm_size                    = "Standard_D2as_v6"
+  enable_auto_scaling        = true
+  min_count                  = 2
+  max_count                  = 5
+  node_count                 = 2
+  os_disk_size_gb            = 64
+  acr_id                     = module.acr.acr_id
+  log_analytics_workspace_id = module.monitoring.workspace_id
+  tags                       = var.tags
+
+  depends_on = [module.network, module.monitoring]
 }

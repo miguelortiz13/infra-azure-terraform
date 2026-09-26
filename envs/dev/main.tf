@@ -68,6 +68,16 @@ resource "azurerm_key_vault_secret" "test" {
 }
 
 
+module "monitoring" {
+  source              = "../../modules/monitoring"
+  workspace_name      = "log-${var.project_name}-${var.environment}-${var.location}"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  retention_in_days   = 30
+  daily_quota_gb      = 0.5
+  tags                = var.tags
+}
+
 module "aks" {
   source              = "../../modules/aks"
   cluster_name        = "aks-${var.project_name}-${var.environment}-${var.location}"
@@ -81,9 +91,11 @@ module "aks" {
   min_count           = 1
   max_count           = 3
   node_count          = 1
-  os_disk_size_gb     = 30
+  os_disk_size_gb     = 64
   acr_id              = module.acr.acr_id
-  tags                = var.tags
 
-  depends_on = [module.network]
+  log_analytics_workspace_id = module.monitoring.workspace_id
+  tags                       = var.tags
+
+  depends_on = [module.network, module.monitoring]
 }

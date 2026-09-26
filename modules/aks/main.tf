@@ -56,12 +56,29 @@ resource "azurerm_kubernetes_cluster" "aks" {
     dns_service_ip      = var.dns_service_ip
   }
 
+  dynamic "oms_agent" {
+    for_each = var.log_analytics_workspace_id != null ? [1] : []
+    content {
+      log_analytics_workspace_id      = var.log_analytics_workspace_id
+      msi_auth_for_monitoring_enabled = true
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      default_node_pool[0].node_count,
+      default_node_pool[0].upgrade_settings
+    ]
+  }
+
   tags = var.tags
 }
 
+
+
 # Asignación de rol AcrPull para que el kubelet de AKS pueda descargar imágenes del ACR sin credenciales estáticas
 resource "azurerm_role_assignment" "aks_acr_pull" {
-  count                            = var.acr_id != null ? 1 : 0
+  count                            = var.attach_acr ? 1 : 0
   principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
   role_definition_name             = "AcrPull"
   scope                            = var.acr_id
