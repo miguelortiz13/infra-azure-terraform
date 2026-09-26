@@ -188,7 +188,10 @@ jobs:
                          --out-file=/tmp/infracost.json
 
       - name: Post Infracost Comment
-        uses: infracost/actions/comment@v3
-        with:
-          path: /tmp/infracost.json
-          behavior: update
+        run: |
+          infracost comment github \
+            --repo "${{ github.repository }}" \
+            --pull-request "${{ github.event.pull_request.number }}" \
+            --path /tmp/infracost.json \
+            --github-token "${{ secrets.GITHUB_TOKEN }}" \
+            --behavior update
