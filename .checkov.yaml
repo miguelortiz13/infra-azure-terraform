@@ -1,0 +1,30 @@
+framework:
+  - terraform
+
+compact: true
+
+skip-check:
+  # -----------------------------------------------------------------------------
+  # Azure Container Registry (ACR)
+  # Políticas que requieren SKU Premium (~$50 USD/mes), incompatibles con la
+  # restricción presupuestaria estricta de FinOps ($20 USD/mes para el laboratorio).
+  # -----------------------------------------------------------------------------
+  - CKV_AZURE_165 # Geo-replicated container registries (Requiere SKU Premium)
+  - CKV_AZURE_166 # Container image quarantine and verification (Requiere SKU Premium)
+  - CKV_AZURE_167 # Retention policy for untagged manifests (Requiere SKU Premium)
+  - CKV_AZURE_233 # Zone redundant ACR (Requiere SKU Premium)
+  - CKV_AZURE_139 # ACR disable public networking (Requiere Private Endpoint con costo adicional)
+  - CKV_AZURE_164 # ACR signed/trusted images / Content Trust (Requiere SKU Premium)
+  - CKV_AZURE_163 # Vulnerability scanning for images (Microsoft Defender for Cloud con costo adicional)
+  - CKV_AZURE_237 # Dedicated data endpoints (Requiere SKU Premium)
+
+  # -----------------------------------------------------------------------------
+  # Azure Key Vault
+  # Políticas de red privada y purge protection incompatibles con el ciclo de vida
+  # de desarrollo ágil y destrucción rápida en laboratorio.
+  # -----------------------------------------------------------------------------
+  - CKV_AZURE_42  # Key Vault recoverable
+  - CKV_AZURE_110 # Purge protection bloquea eliminación inmediata en `terraform destroy`
+  - CKV_AZURE_189 # Deshabilitar red pública requiere Private Endpoint
+  - CKV_AZURE_109 # Reglas de firewall de Key Vault
+  - CKV2_AZURE_32 # Private Endpoint para Key Vault

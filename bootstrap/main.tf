@@ -66,7 +66,7 @@ resource "azuread_service_principal" "github_actions" {
 resource "azuread_application_federated_identity_credential" "pr" {
   application_id = azuread_application.github_actions.id
   display_name   = "github-actions-pull-request"
-  description    = "OIDC federation for pull requests (immutable format)"
+  description    = "OIDC federation for pull requests in ${var.github_repository} (immutable format)"
   audiences      = ["api://AzureADTokenExchange"]
   issuer         = "https://token.actions.githubusercontent.com"
   subject        = "repo:${var.github_repository_immutable}:pull_request"
@@ -76,7 +76,7 @@ resource "azuread_application_federated_identity_credential" "pr" {
 resource "azuread_application_federated_identity_credential" "main" {
   application_id = azuread_application.github_actions.id
   display_name   = "github-actions-branch-main"
-  description    = "OIDC federation for main branch workflow runs (immutable format)"
+  description    = "OIDC federation for main branch workflow runs in ${var.github_repository} (immutable format)"
   audiences      = ["api://AzureADTokenExchange"]
   issuer         = "https://token.actions.githubusercontent.com"
   subject        = "repo:${var.github_repository_immutable}:ref:refs/heads/main"
@@ -86,7 +86,7 @@ resource "azuread_application_federated_identity_credential" "main" {
 resource "azuread_application_federated_identity_credential" "dev" {
   application_id = azuread_application.github_actions.id
   display_name   = "github-actions-env-dev"
-  description    = "OIDC federation for dev environment (immutable format)"
+  description    = "OIDC federation for dev environment in ${var.github_repository} (immutable format)"
   audiences      = ["api://AzureADTokenExchange"]
   issuer         = "https://token.actions.githubusercontent.com"
   subject        = "repo:${var.github_repository_immutable}:environment:dev"

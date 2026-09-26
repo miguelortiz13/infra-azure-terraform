@@ -1,0 +1,151 @@
+name: Pull Request · Validation, Security & Plan
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'modules/**'
+      - 'envs/**'
+      - '.checkov.yaml'
+      - '.tflint.hcl'
+      - '.github/workflows/pr.yaml'
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-and-plan:
+    name: Validation, Security & Plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+          terraform_wrapper: false
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.50.3
+
+      - name: Setup Python for Checkov
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Checkov
+        run: pip install --no-cache-dir checkov
+
+      - name: Step 1 · Check Terraform Format
+        id: fmt
+        run: terraform fmt -check -recursive
+
+      - name: Step 2 · TFLint Scan
+        id: tflint
+        run: |
+          tflint --init --config=.tflint.hcl
+          tflint --recursive
+
+      - name: Step 3 · Checkov Security Scan
+        id: checkov
+        run: checkov -d modules -d envs/dev
+
+      - name: Step 4 · Azure Login via OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Step 5 · Terraform Init (envs/dev)
+        id: init
+        run: terraform -chdir=envs/dev init
+
+      - name: Step 6 · Terraform Validate (envs/dev)
+        id: validate
+        run: terraform -chdir=envs/dev validate
+
+      - name: Step 7 · Terraform Plan (envs/dev)
+        id: plan
+        run: |
+          terraform -chdir=envs/dev plan -no-color -out=tfplan > plan.txt
+          cat plan.txt
+
+      - name: Step 8 · Publish / Update PR Plan Comment
+        uses: actions/github-script@v7
+        if: always() && steps.plan.conclusion != 'skipped'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            let planText = 'No plan output generated.';
+            if (fs.existsSync('plan.txt')) {
+              planText = fs.readFileSync('plan.txt', 'utf8');
+            }
+
+            const maxLen = 60000;
+            const truncatedPlan = planText.length > maxLen
+              ? planText.substring(0, maxLen) + '\n... [Plan truncado por límite de caracteres de GitHub]'
+              : planText;
+
+            const header = '### 🪐 Terraform Plan (`envs/dev`)';
+            const fmtStatus = '${{ steps.fmt.outcome }}' === 'success' ? '✅' : '❌';
+            const tflintStatus = '${{ steps.tflint.outcome }}' === 'success' ? '✅' : '❌';
+            const checkovStatus = '${{ steps.checkov.outcome }}' === 'success' ? '✅' : '❌';
+            const initStatus = '${{ steps.init.outcome }}' === 'success' ? '✅' : '❌';
+            const validateStatus = '${{ steps.validate.outcome }}' === 'success' ? '✅' : '❌';
+            const planStatus = '${{ steps.plan.outcome }}' === 'success' ? '✅' : '❌';
+
+            const body = [
+              header,
+              '',
+              '| Etapa | Estado |',
+              '|---|---|',
+              `| 🖌️ **Terraform fmt** | ${fmtStatus} \`${{ steps.fmt.outcome }}\` |`,
+              `| 🔍 **TFLint** | ${tflintStatus} \`${{ steps.tflint.outcome }}\` |`,
+              `| 🛡️ **Checkov Scan** | ${checkovStatus} \`${{ steps.checkov.outcome }}\` |`,
+              `| ⚙️ **Terraform init** | ${initStatus} \`${{ steps.init.outcome }}\` |`,
+              `| ✔️ **Terraform validate** | ${validateStatus} \`${{ steps.validate.outcome }}\` |`,
+              `| 📋 **Terraform plan** | ${planStatus} \`${{ steps.plan.outcome }}\` |`,
+              '',
+              '<details><summary>📖 Ver detalles del Plan de Ejecución</summary>',
+              '',
+              '```hcl',
+              truncatedPlan,
+              '```',
+              '',
+              '</details>',
+              '',
+              `*Acción ejecutada para el commit [\`${context.sha.substring(0, 7)}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}) en el evento \`${context.eventName}\`.*`
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment => comment.body.includes(header));
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }
