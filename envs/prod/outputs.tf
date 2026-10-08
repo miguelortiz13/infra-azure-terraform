@@ -93,3 +93,18 @@ output "monitoring_workspace_name" {
   description = "Nombre del Log Analytics Workspace del entorno prod"
   value       = module.monitoring.workspace_name
 }
+
+output "eso_identity_id" {
+  description = "ID de la identidad administrada para External Secrets Operator"
+  value       = azurerm_user_assigned_identity.eso.id
+}
+
+output "eso_identity_client_id" {
+  description = "Client ID de la identidad administrada para External Secrets Operator"
+  value       = azurerm_user_assigned_identity.eso.client_id
+}
+
+output "eso_identity_principal_id" {
+  description = "Principal ID de la identidad administrada para External Secrets Operator"
+  value       = azurerm_user_assigned_identity.eso.principal_id
+}
