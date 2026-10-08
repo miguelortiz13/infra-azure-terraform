@@ -99,3 +99,26 @@ module "aks" {
 
   depends_on = [module.network, module.monitoring]
 }
+
+# Identidad administrada y credencial federada para External Secrets Operator (P3-05)
+resource "azurerm_user_assigned_identity" "eso" {
+  name                = "uami-eso-${var.project_name}-${var.environment}-${var.location}"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  tags                = var.tags
+}
+
+resource "azurerm_role_assignment" "eso_kv_secrets_user" {
+  scope                = module.keyvault.key_vault_id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_user_assigned_identity.eso.principal_id
+}
+
+resource "azurerm_federated_identity_credential" "eso" {
+  name                = "fic-eso-${var.environment}"
+  resource_group_name = azurerm_resource_group.rg.name
+  parent_id           = azurerm_user_assigned_identity.eso.id
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = module.aks.oidc_issuer_url
+  subject             = "system:serviceaccount:external-secrets:external-secrets"
+}
