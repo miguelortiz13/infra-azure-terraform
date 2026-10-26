@@ -85,6 +85,7 @@ flowchart TD
 
 ### 3.1. Prerrequisitos
 
+prerequisitos importantes para iniciar: 
 * **Terraform** (`>= 1.8.0`)
 * **Azure CLI** (`az`) autenticado con la suscripción activa
 * **tflint**, **gitleaks**, **checkov**, **infracost** y **pre-commit**
